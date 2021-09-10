@@ -9,7 +9,7 @@ export default function ConversationThread() {
   return (
     <Container>
       <p>Channel: #{channel}</p>
-      <Message text="Hello there!" sender="Kelley" sentAt="2:58 PM" />
+      <Message text="Hello there!" sender="Nagehan" sentAt="2:58 PM" />
       <Message
         text="This is just dummy data for now"
         sender="Student Talk"
