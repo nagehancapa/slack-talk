@@ -1,25 +1,48 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import Message from "../components/Message";
+import axios from "axios";
 
 export default function ConversationThread() {
   const { channel = "" } = useParams();
 
+  const [history, setHistory] = useState({status: "loading"});
+
+  useEffect(() => {
+    async function fetchData() {
+      setHistory({ status: "loading"});
+      try {
+        const response = await axios.get("https://slack.com/api/conversations.history?channel=" +
+        encodeURIComponent(channel) +
+        "&token=" +
+        process.env.REACT_APP_SLACK_TOKEN)
+        if (!response.data.ok) {
+          // slack gives back errors with 200 status code, so this is necessary
+          throw new Error(response.data.error);
+        }
+        setHistory({status: "success", data: response.data});
+      } catch (error) {
+        setHistory({status: "error", error})
+      }
+    }
+
+    fetchData();
+  }, [setHistory, channel]);
+
   return (
     <Container>
       <p>Channel: #{channel}</p>
-      <Message text="Hello there!" sender="Nagehan" sentAt="2:58 PM" />
-      <Message
-        text="This is just dummy data for now"
-        sender="Student Talk"
-        sentAt="3:12 PM"
-      />
-      <Message
-        text="One last message just for completeness' sake"
-        sender="Someone else"
-        sentAt="3:20 PM"
-      />
+      {history.status === "loading" && <p>Loading...</p>}
+      {history.status === "error" && <p>Error :(</p>}
+        {history.status === "success" && history.data.messages.map(message => {
+          if (message.type !== "message") {
+            return null;
+          }
+          return (
+            <Message text={message.text} sender="(Unknown)" sentAt={message.ts} />
+          );
+        })}
     </Container>
   );
 }
