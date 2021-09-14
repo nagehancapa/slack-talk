@@ -1,33 +1,11 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
+import useSlackApi from "../lib/useSlackApi";
 
 export default function ConversationsList() {
-  const [conversations, setConversations] = useState({ status: "loading" });
+  const conversations = useSlackApi("conversations.list?exclude_archived=true");
 
-  useEffect(() => {
-    async function fetchData() {
-      setConversations({ status: "loading" });
-      try {
-        // For testing, you could use:
-        // if (Math.random() < 0.5) { throw "ERR"; }
-        const response = await axios.get(
-          "https://slack.com/api/conversations.list?exclude_archived=true&token=" +
-            process.env.REACT_APP_SLACK_TOKEN
-        );
-        // slack gives back errors with 200 status code, so this is necessary
-        if (!response.data.ok) {
-          throw new Error(response.data.error);
-        }
-        setConversations({ status: "success", data: response.data });
-      } catch (error) {
-        setConversations({ status: "error", error });
-      }
-    }
-
-    fetchData();
-  }, [setConversations]);
   return (
     <Container>
       {conversations.status === "loading" && <p>Loading...</p>}

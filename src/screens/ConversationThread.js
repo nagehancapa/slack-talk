@@ -1,34 +1,15 @@
-import React, {useState, useEffect} from "react";
+import React from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import Message from "../components/Message";
-import axios from "axios";
+import useSlackApi from "../lib/useSlackApi";
 
 export default function ConversationThread() {
   const { channel = "" } = useParams();
 
-  const [history, setHistory] = useState({status: "loading"});
-
-  useEffect(() => {
-    async function fetchData() {
-      setHistory({ status: "loading"});
-      try {
-        const response = await axios.get("https://slack.com/api/conversations.history?channel=" +
-        encodeURIComponent(channel) +
-        "&token=" +
-        process.env.REACT_APP_SLACK_TOKEN)
-        if (!response.data.ok) {
-          // slack gives back errors with 200 status code, so this is necessary
-          throw new Error(response.data.error);
-        }
-        setHistory({status: "success", data: response.data});
-      } catch (error) {
-        setHistory({status: "error", error})
-      }
-    }
-
-    fetchData();
-  }, [setHistory, channel]);
+  const history = useSlackApi(
+    "conversations.history?channel=" + encodeURIComponent(channel)
+  );
 
   return (
     <Container>
