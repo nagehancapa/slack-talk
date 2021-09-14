@@ -1,18 +1,20 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import Message from "../components/Message";
 import useSlackApi from "../lib/useSlackApi";
+import { CompactMode } from "../lib/CompactMode";
 
 export default function ConversationThread() {
   const { channel = "" } = useParams();
+  const { isCompact } = useContext(CompactMode);
 
   const history = useSlackApi(
     "conversations.history?channel=" + encodeURIComponent(channel)
   );
 
   return (
-    <Container>
+    <Container  style={{padding: isCompact ? "0.5rem" : "1.5rem" }}>
       <p>Channel: #{channel}</p>
       {history.status === "loading" && <p>Loading...</p>}
       {history.status === "error" && <p>Error :(</p>}
@@ -30,9 +32,5 @@ export default function ConversationThread() {
 
 const Container = styled.div`
   flex: 1 0 auto;
-  padding: 1.5rem;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  overflow-y: auto;
 `;

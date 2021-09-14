@@ -1,13 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 import useSlackApi from "../lib/useSlackApi";
+import { CompactMode } from "../lib/CompactMode";
 
 export default function ConversationsList() {
   const conversations = useSlackApi("conversations.list?exclude_archived=true");
+  const { toggleCompactMode } = useContext(CompactMode);
 
   return (
     <Container>
+      <p>
+        <button onClick={toggleCompactMode}>Toggle Compact Mode</button>
+      </p>
       {conversations.status === "loading" && <p>Loading...</p>}
       {conversations.status === "error" && <p>Error :(</p>}
       {conversations.status === "success" &&
@@ -26,6 +31,7 @@ const Container = styled.div`
   flex: 0 0 260px;
   padding: 0.5rem 0;
   border-right: 1px solid #ddd;
+  overflow-y: auto;
 `;
 
 const Item = styled(NavLink)`
